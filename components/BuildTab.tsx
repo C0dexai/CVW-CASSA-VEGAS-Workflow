@@ -76,6 +76,16 @@ const BuildTab: React.FC<BuildTabProps> = ({ spark, onBuildConfigChange, onStart
     onBuildConfigChange({ ...buildConfig, service: buildConfig.service === id ? null : id });
   };
 
+  const handleEnvChange = (key: string, value: string) => {
+    onBuildConfigChange({
+        ...buildConfig,
+        env: {
+            ...(buildConfig.env || {}),
+            [key]: value,
+        }
+    });
+  };
+
   const canStartBuild = buildConfig.template && !isBuilding && status !== 'built';
 
   const renderSection = (title: string, items: RegistryItem[], selection: string | string[] | null, handler: (id: string) => void, selectionType: 'single' | 'multiple') => (
@@ -96,6 +106,37 @@ const BuildTab: React.FC<BuildTabProps> = ({ spark, onBuildConfigChange, onStart
       {renderSection("UI & Styling", TEMPLATE_REGISTRY.UI, buildConfig.ui, handleUiSelect, 'multiple')}
       {renderSection("Services", TEMPLATE_REGISTRY.SERVICES, buildConfig.service, handleServiceSelect, 'single')}
       {renderSection("Datastore", TEMPLATE_REGISTRY.DATASTORE, buildConfig.datastore, handleDatastoreSelect, 'single')}
+
+      <div>
+        <h3 className="text-lg font-bold text-slate-200 border-b border-slate-700 pb-2 mb-3">Container Environment</h3>
+        <p className="text-sm text-slate-400 mb-4">Provide environment variables for the containerized service.</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+                <label htmlFor="api-name" className="block text-xs font-medium text-slate-400 mb-1">API Name</label>
+                <input
+                    type="text"
+                    id="api-name"
+                    value={buildConfig.env?.API_NAME || ''}
+                    onChange={(e) => handleEnvChange('API_NAME', e.target.value)}
+                    placeholder="e.g., GEMINI_API"
+                    className="w-full bg-slate-700 text-sm rounded-md border-slate-600 focus:ring-red-500 focus:border-red-500 disabled:opacity-50"
+                    disabled={isBuilt}
+                />
+            </div>
+            <div>
+                <label htmlFor="api-key" className="block text-xs font-medium text-slate-400 mb-1">API Key</label>
+                <input
+                    type="password"
+                    id="api-key"
+                    value={buildConfig.env?.API_KEY || ''}
+                    onChange={(e) => handleEnvChange('API_KEY', e.target.value)}
+                    placeholder="Enter secret key"
+                    className="w-full bg-slate-700 text-sm rounded-md border-slate-600 focus:ring-red-500 focus:border-red-500 disabled:opacity-50"
+                    disabled={isBuilt}
+                />
+            </div>
+        </div>
+      </div>
 
       <div className="pt-4 border-t border-slate-700 flex justify-end">
         <button

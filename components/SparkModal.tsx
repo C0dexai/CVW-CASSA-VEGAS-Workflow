@@ -33,7 +33,7 @@ interface SparkModalProps {
 const formatBuildDetails = (details: Record<string, string | string[]>): string => {
     return Object.entries(details)
         .map(([key, value]) => {
-            const formattedKey = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+            const formattedKey = key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ').replace(/^./, str => str.toUpperCase());
             const formattedValue = Array.isArray(value) ? `[${value.join(', ')}]` : `"${value}"`;
             return `  - **${formattedKey}:** ${formattedValue}`;
         })
@@ -190,6 +190,13 @@ const SparkModal: React.FC<SparkModalProps> = ({ isOpen, onClose, spark, stage, 
     if (buildConfig.datastore) {
         const dsDetails = TEMPLATE_REGISTRY.DATASTORE.find(d => d.id === buildConfig.datastore);
         dynamicSteps.push({ action: 'datastore-integration', details: { datastore: dsDetails?.name || buildConfig.datastore }, domain: 'Bravo' });
+    }
+
+    if (buildConfig.env && (buildConfig.env.API_NAME || buildConfig.env.API_KEY)) {
+        const envDetails: Record<string, string> = {};
+        if (buildConfig.env.API_NAME) envDetails.API_NAME = buildConfig.env.API_NAME;
+        if (buildConfig.env.API_KEY) envDetails.API_KEY_STATUS = 'Set and secured';
+        dynamicSteps.push({ action: 'configure-environment', details: envDetails, domain: 'Bravo' });
     }
 
     dynamicSteps.push({ action: 'command', details: { command: 'npm run build' }, domain: 'Both' });

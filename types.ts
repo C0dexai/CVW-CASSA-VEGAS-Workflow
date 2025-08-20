@@ -21,6 +21,7 @@ export interface BuildConfig {
   ui: string[];
   datastore: string | null;
   service: string | null;
+  env?: Record<string, string>;
 }
 
 export interface BuildStep {
